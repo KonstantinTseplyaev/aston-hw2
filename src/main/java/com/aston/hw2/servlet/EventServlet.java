@@ -81,6 +81,7 @@ public class EventServlet extends HttpServlet {
 
         EventCreationDto event = JsonParserUtil.toEventCreationDtoFromJson(req);
         event.setInitiatorId(userId);
+        log.debug("user {} add new event: {}",userId, event);
 
         String respMessage = eventService.addNewEvent(event);
 
@@ -101,7 +102,7 @@ public class EventServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
 
         JSONObject jsonEvent = JsonParserUtil.getUpdateEventJson(req);
-        log.debug("update event: {}", jsonEvent);
+        log.debug("user {} update event: {}", userId, jsonEvent);
 
         LocationForUpdate locForUp = JsonParserUtil.toLocationForUpdateFromJson(jsonEvent, jsonMapper);
         EventForUpdate eventForUpdate = JsonParserUtil.toEventForUpdateFromJson(jsonEvent, jsonMapper);
@@ -127,10 +128,10 @@ public class EventServlet extends HttpServlet {
         String responseBody;
         resp.setContentType("text/HTML");
         String id = req.getParameter("id");
-        log.debug("delete event with id {}", id);
         HttpSession session = req.getSession();
         long userId = (long) session.getAttribute("userId");
         long eventId = Integer.parseInt(id);
+        log.debug("user {} delete event {}", userId, eventId);
 
         boolean isDeleted = eventService.deleteEventById(userId, eventId);
 

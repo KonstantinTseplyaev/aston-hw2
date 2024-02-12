@@ -17,7 +17,6 @@ import com.aston.hw2.util.MapperUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +29,6 @@ import static com.aston.hw2.util.ResponseAnswers.INCORRECT_DATE;
 import static com.aston.hw2.util.ResponseAnswers.INCORRECT_LOC;
 import static com.aston.hw2.util.ResponseAnswers.LOCATION_ERROR;
 
-@Slf4j
 public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final LocationDao locationDao;
@@ -56,7 +54,6 @@ public class EventServiceImpl implements EventService {
         if (locId < 0) return LOCATION_ERROR;
 
         Event newEvent = MapperUtil.toEventFromEventCreationDto(eventDto, locId);
-        log.debug("newEvent: " + newEvent);
         boolean isAdded = eventDao.add(newEvent);
 
         if (isAdded) return EVENT_ADDED;
@@ -101,7 +98,6 @@ public class EventServiceImpl implements EventService {
             try {
                 String jsonUpEvent = objectMapper.writeValueAsString(upEvent);
                 objectMapper.readerForUpdating(event).readValue(jsonUpEvent);
-                log.debug("event после обновления - {}", event);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

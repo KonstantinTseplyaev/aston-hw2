@@ -37,6 +37,7 @@ public class LoginServlet extends HttpServlet {
         resp.setContentType("text/HTML");
 
         UserLoginDto userLoginDto = JsonParserUtil.toUserLoginDtoFromJson(req);
+        log.debug("login user with data: {}", userLoginDto);
 
         if (!emailValidator.isValid(userLoginDto.getEmail())) {
             resp.setStatus(400);

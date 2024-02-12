@@ -36,6 +36,7 @@ public class RegistrationServlet extends HttpServlet {
         String respMessage;
 
         UserRegistrationDto user = JsonParserUtil.toUserRegistrationDtoFromJson(req);
+        log.debug("registration user with data: {}", user);
 
         if (!emailValidator.isValid(user.getEmail())) {
             respMessage = INCORRECT_EMAIL;

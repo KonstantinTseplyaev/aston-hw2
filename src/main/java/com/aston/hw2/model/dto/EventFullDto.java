@@ -26,7 +26,8 @@ public class EventFullDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof EventFullDto that)) return false;
-        return id == that.id && Objects.equals(title, that.title) &&
+        return id == that.id &&
+                Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(eventDate, that.eventDate) &&
                 Objects.equals(initiatorName, that.initiatorName) &&
