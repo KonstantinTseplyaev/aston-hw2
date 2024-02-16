@@ -38,18 +38,38 @@ public class JdbcConfig {
         poolConnection.setURL(URL);
         poolConnection.setUser(USERNAME);
         poolConnection.setPassword(PASSWORD);
+        initDataBase();
     }
 
-    public static Connection getConnection() throws SQLException {
-        Connection connection = poolConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(initSql());
-        statement.execute();
-        return connection;
+    private static void initDataBase() {
+        Connection initConnection = null;
+        PreparedStatement dbStatement = null;
+        PreparedStatement indexStatement = null;
+        try {
+            initConnection = poolConnection.getConnection();
+
+            dbStatement = initConnection
+                    .prepareStatement(initSql("src/main/resources/schema.sql"));
+            dbStatement.execute();
+
+            indexStatement = initConnection
+                    .prepareStatement(initSql("src/main/resources/index.sql"));
+            indexStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (dbStatement != null) dbStatement.close();
+                if (indexStatement != null) indexStatement.close();
+                if (initConnection != null) initConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-
-    private static String initSql() {
-        try (FileInputStream inputStream = new FileInputStream("src/main/resources/schema.sql");
+    private static String initSql(String path) {
+        try (FileInputStream inputStream = new FileInputStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             StringBuilder sb = new StringBuilder();
@@ -61,5 +81,9 @@ public class JdbcConfig {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Connection getConnection() throws SQLException {
+        return poolConnection.getConnection();
     }
 }
