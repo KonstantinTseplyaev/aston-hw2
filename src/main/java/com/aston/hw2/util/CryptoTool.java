@@ -2,6 +2,7 @@ package com.aston.hw2.util;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+// Молодец, сделал много дополнительной работы! Это похвально)
 public class CryptoTool {
 
     public static String hashOf(String password) {
