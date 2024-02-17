@@ -45,48 +45,56 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public String addNewEvent(EventCreationDto eventDto) {
-        if (isIncorrectDate(eventDto.getEventDate())) return INCORRECT_DATE;
-        if (isIncorrectLocation(eventDto.getLocation())) return INCORRECT_LOC;
+        if (isIncorrectDate(eventDto.getEventDate())) return INCORRECT_DATE; // Эх, про скобки забыл!
+        if (isIncorrectLocation(eventDto.getLocation())) return INCORRECT_LOC;// и тут
 
         Location newLocation = MapperUtil.toLocationFromLocationDto(eventDto.getLocation());
         long locId = locationDao.addLocation(newLocation);
 
-        if (locId < 0) return LOCATION_ERROR;
+        if (locId < 0) return LOCATION_ERROR; // и тут
 
         Event newEvent = MapperUtil.toEventFromEventCreationDto(eventDto, locId);
-        boolean isAdded = eventDao.add(newEvent);
 
-        if (isAdded) return EVENT_ADDED;
+        if (eventDao.add(newEvent)) return EVENT_ADDED; // и тут
 
         return EVENT_ERROR;
     }
 
     @Override
     public List<EventDto> getAllEvents() {
-        List<Event> events = eventDao.getAll();
-        return events.stream().map(MapperUtil::toEventDtoFromEvent).collect(Collectors.toList());
+        return eventDao.getAll()
+                .stream()
+                 .map(MapperUtil::toEventDtoFromEvent)
+                .collect(Collectors.toList()); // каждый вызов метода на новой строке
     }
 
     @Override
     public EventFullDto getEventById(long id) {
         Optional<Event> eventOpt = eventDao.findById(id);
 
-        if (eventOpt.isEmpty()) return null;
-
+        if (eventOpt.isEmpty()) {
+            return null;
+        }
         Event event = eventOpt.get();
-        Long initId = event.getInitiatorId();
-        Long locId = event.getLocationId();
-        Location loc = locationDao.findById(locId).orElseThrow(RuntimeException::new);
-        LocationDto location = MapperUtil.toLocationDtoFromLocation(loc);
-        User initiator = userDao.findById(initId).orElseThrow(RuntimeException::new);
-        String initiatorName = initiator.getName();
-        return MapperUtil.toEventFullDtoFromEvent(event, location, initiatorName);
+        return mapEvent(// это желательно делать в маппере
+                event,
+                locationDao.findById(event.getLocationId()).orElseThrow(RuntimeException::new),
+                userDao.findById(event.getInitiatorId()).orElseThrow(RuntimeException::new)
+        );
+    }
+
+    private EventFullDto mapEvent(Event event, Location location, User initiator) {
+        return MapperUtil.toEventFullDtoFromEvent(
+                event,
+                MapperUtil.toLocationDtoFromLocation(location),
+                initiator.getName()
+        );
     }
 
     @Override
     public boolean updateEvent(EventForUpdate upEvent, LocationForUpdate locForUpdate, Long userId) {
-        if (upEvent.getEventDate() != null) {
-            if (isIncorrectDate(upEvent.getEventDate())) return false;
+        if (upEvent.getEventDate() != null && isIncorrectDate(upEvent.getEventDate())) { // зачем вкладывать if?
+            return false;
         }
 
         Optional<Event> targetEvent = eventDao.findByIdAndInitiator(upEvent.getId(), userId);
@@ -95,7 +103,7 @@ public class EventServiceImpl implements EventService {
             Event event = targetEvent.get();
             boolean isLocUpdated = updateLocation(locForUpdate, event.getLocationId());
 
-            try {
+            try { // трай всегда выноси в отдельный метод, чтобы не загрязнять код
                 String jsonUpEvent = objectMapper.writeValueAsString(upEvent);
                 objectMapper.readerForUpdating(event).readValue(jsonUpEvent);
             } catch (JsonProcessingException e) {

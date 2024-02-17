@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = "/*")
-public class AuthenticationFilter implements Filter {
+public class AuthenticationFilter implements Filter { // тут здорово, за аутентификацию +
 
     @Override
     public void doFilter(ServletRequest servletRequest,

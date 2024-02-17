@@ -17,13 +17,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User getAuthenticatedUser(UserLoginDto userLoginDto) {
-        Optional<User> userOpt = userDao.findByEmail(userLoginDto.getEmail());
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (CryptoTool.isCorrectPwd(userLoginDto.getPassword(), user.getPassword())) {
-                return user;
-            }
-        }
-        return null;
+        return userDao.findByEmail(userLoginDto.getEmail())
+                .filter(user -> CryptoTool.isCorrectPwd(userLoginDto.getPassword(), user.getPassword())) // абсолютно идентичный код, но выглядит симпатичнее
+                .get();
     }
 }
